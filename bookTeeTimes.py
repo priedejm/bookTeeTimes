@@ -3,8 +3,21 @@ import subprocess
 
 def remove_cron_job(course, day, min_time, max_time, players):
     # Recreate the cron command from the input parameters
-    cron_command = f"python3 /home/teetimesuser/bookTeeTimes/bookTeeTimes.py \"{course}\" \"{day}\" \"{min_time}\" \"{max_time}\" \"{players}\""
+    cron_command = f"python3 /home/teetimesuser/bookTeeTimes/bookTeeTimes.py '{course}' '{day}' '{min_time}' '{max_time}' '{players}'"
+
+    # Build the cron timing part (the part that specifies when the cron job should run)
+    # This should match the cron job timing used when adding the job.
+    cron_hour = 7  # Fixed to 7:00 AM
+    cron_minute = 0  # Fixed to 0 minute
+    cron_day = int(day.split('-')[2])  # Extract the day from the date (YYYY-MM-DD)
+    cron_month = int(day.split('-')[1])  # Extract the month from the date (YYYY-MM-DD)
+
+    # Full cron timing
+    cron_timing = f"{cron_minute} {cron_hour} {cron_day} {cron_month} *"
     
+    # Full cron job entry to search for (timing + command)
+    cron_job = f"{cron_timing} {cron_command}"
+
     # Get the current crontab
     try:
         result = subprocess.run(["crontab", "-l"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
@@ -14,9 +27,9 @@ def remove_cron_job(course, day, min_time, max_time, players):
         return
 
     # Check if the specific cron job exists
-    if cron_command in current_cron:
+    if cron_job in current_cron:
         # Remove the matching cron job
-        new_cron = "\n".join([line for line in current_cron.splitlines() if cron_command not in line])
+        new_cron = "\n".join([line for line in current_cron.splitlines() if cron_job not in line])
         
         # Update the crontab
         try:
@@ -25,7 +38,7 @@ def remove_cron_job(course, day, min_time, max_time, players):
                 shell=True,
                 check=True
             )
-            print(f"Cron job removed successfully:\n{cron_command}")
+            print(f"Cron job removed successfully:\n{cron_job}")
         except subprocess.CalledProcessError as e:
             print(f"Error removing cron job: {e}")
     else:
@@ -56,3 +69,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# python3 createCronJob.py "Charleston Municipal" "2025-03-15" "08:00" "10:00" "4"
