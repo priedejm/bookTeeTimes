@@ -243,12 +243,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         print("form data is", form_data)
         response = session.post(continue_url, data=form_data)
 
-        # Step 4: Verify if the continue button worked
-        if "processingprompts_buttononeclicktofinish" in response.text:
-            print("✅ Successfully clicked continue! Now on payment page.")
-        else:
-            print("❌ Continue button submission may have failed.")
-        print("response guy", response)
+        print("response guy", response.text)
         return
         # Click "Continue" on payment page
         payment_button = WebDriverWait(driver, 10).until(
