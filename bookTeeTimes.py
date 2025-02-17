@@ -220,20 +220,33 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         response = session.get(tee_times[0]['Add to Cart URL'])
         print("our guy", response.content)
         print("url we hit", tee_times[0]['Add to Cart URL'])
-
+        # Headers to mimic a real browser request
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+            "Referer": "https://sccharlestonweb.myvscloud.com/webtrac/web/"
+        }
 
         # Step 2: Parse the HTML response to find the form fields
         soup = BeautifulSoup(response.text, "html.parser")
 
-        # Step 3: Find and submit the "Continue" button on player selection page
-        continue_form = soup.find("form")  # Locate form (if applicable)
-        continue_data = {
-            "golfmemberselection_buttoncontinue": "yes"  # Extracted from your HTML
-        }
+        # Step 3: Extract all form fields dynamically (in case of CSRF tokens)
+        def extract_form_data(soup, form_name):
+            form_data = {}
+            form = soup.find("form", {"name": form_name}) if form_name else soup.find("form")
+            if form:
+                for input_tag in form.find_all("input"):
+                    name = input_tag.get("name")
+                    value = input_tag.get("value", "")
+                    if name:
+                        form_data[name] = value  # Store form fields dynamically
+            return form_data, form.get("action") if form else response.url  # Return form action URL
 
-        continue_url = response.url  # Make sure this is the correct form action URL
-        response = session.post(continue_url, data=continue_data)
-        print("✅ Clicked continue on player selection page!", response.content)
+        # Step 4: Find and submit "Continue" button on player selection page
+        continue_data, continue_url = extract_form_data(soup, "golfmemberselection_form")
+        continue_data["golfmemberselection_buttoncontinue"] = "yes"
+
+        response = session.post(continue_url, data=continue_data, headers=headers)
+        print("✅ Clicked continue on player selection page!", response.text)
         return
         # Click "Continue" on payment page
         payment_button = WebDriverWait(driver, 10).until(
