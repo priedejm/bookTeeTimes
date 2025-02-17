@@ -104,10 +104,12 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--remote-debugging-port=9222")
-    chromedriver_path = "/usr/bin/chromedriver"  # Use your verified path
-    service = Service(chromedriver_path)
+    chrome_options.binary_location = "/usr/bin/chromium-browser"  # Point to Chromium
+    service = Service("/usr/bin/chromedriver")  
     driver = webdriver.Chrome(service=service, options=chrome_options)
-
+    driver.get("https://www.google.com")
+    print(driver.title)  # Should print: "Google"
+    driver.quit()
     try:
         print("Opening the login page...")
         driver.get("https://sccharlestonweb.myvscloud.com/webtrac/web/splash.html?InterfaceParameter=WebTrac_Golf")
