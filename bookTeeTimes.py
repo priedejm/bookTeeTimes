@@ -102,6 +102,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run in headless mode
     chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--window-size=1920,1080")  # Full HD resolution
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--remote-debugging-port=9222")
     chrome_options.binary_location = "/usr/bin/chromium-browser"  # Point to Chromium
@@ -115,7 +116,6 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         driver.get("https://sccharlestonweb.myvscloud.com/webtrac/web/splash.html?InterfaceParameter=WebTrac_Golf")
         print("fetched")
         driver.save_screenshot("home.png")
-        time.sleep(10)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         driver.save_screenshot("home_after_10.png")
         print("error here")
