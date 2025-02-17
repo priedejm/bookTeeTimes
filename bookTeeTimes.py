@@ -220,6 +220,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         session.cookies.update(requests_cookies)
         response = session.get(tee_times[0]['Add to Cart URL'])
         print("our guy", response)
+        print("url we hit", tee_times[0]['Add to Cart URL'])
         return
 
         # Add first tee time to cart
