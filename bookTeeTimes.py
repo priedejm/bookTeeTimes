@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import pickle
+import requests
 import time
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -108,22 +109,17 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
     chrome_options.binary_location = "/usr/bin/chromium-browser"  # Point to Chromium
     service = Service("/usr/bin/chromedriver")  
     driver = webdriver.Chrome(service=service, options=chrome_options)
-    driver.get("https://www.google.com")
-    print(driver.title)  # Should print: "Google"
-    driver.save_screenshot("google.png")
+
     try:
         print("Opening the login page...")
         driver.get("https://sccharlestonweb.myvscloud.com/webtrac/web/splash.html?InterfaceParameter=WebTrac_Golf")
-        print("fetched")
         driver.save_screenshot("home.png")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         driver.save_screenshot("home_after_10.png")
-        print("error here")
         # Find and click the login button
         login_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'login.html')]"))
         )
-        print("no error here")
         login_button.click()
         print("✅ Login button clicked!")
 
@@ -216,6 +212,15 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
             return
 
         print("✅ Found matching tee times!")
+
+        selenium_cookies = driver.get_cookies()
+        requests_cookies = {cookie['name']: cookie['value'] for cookie in selenium_cookies}
+
+        session = requests.Session()
+        session.cookies.update(requests_cookies)
+        response = session.get(tee_times[0]['Add to Cart URL'])
+        print("our guy", response)
+        return
 
         # Add first tee time to cart
         driver.get(tee_times[0]['Add to Cart URL'])
