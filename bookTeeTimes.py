@@ -12,6 +12,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from html import unescape
+from datetime import timedelta
 
 def wait_until_precise_7am():
     """Wait until exactly 7:00:00.000 AM with millisecond precision."""
@@ -20,7 +21,7 @@ def wait_until_precise_7am():
     
     # If it's past 7 AM, wait for the next day's 7 AM
     if now >= target_time:
-        target_time = target_time.replace(day=now.day + 1)
+        target_time += timedelta(days=1)
 
     seconds_until_target = (target_time - now).total_seconds()
 
@@ -98,11 +99,13 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
     
     # Set up WebDriver options
     chrome_options = Options()
-    # chrome_options.add_argument("--headless")  # Uncomment for headless mode
+    chrome_options.add_argument("--headless")  # Run in headless mode
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--remote-debugging-port=9222")
 
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(executable_path="/usr/bin/chromedriver", options=chrome_options)
+
 
     try:
         print("Opening the login page...")
@@ -137,7 +140,8 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         parsed_url = urlparse(current_url)
         query_params = parse_qs(parsed_url.query)
         formatted_day = datetime.strptime(day, "%Y-%m-%d").strftime("%m/%d/%Y")
-        formatted_time = datetime.strptime(min_time, "%I:%M%p").strftime("%-I:%M%p").upper()
+        formatted_time = datetime.strptime(min_time, "%I:%M%p").strftime("%I:%M%p").lstrip("0").upper()
+
 
         query_params.update({
             "Action": ["Start"],
