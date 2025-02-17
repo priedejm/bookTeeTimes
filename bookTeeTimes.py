@@ -109,11 +109,14 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.get("https://www.google.com")
     print(driver.title)  # Should print: "Google"
+    driver.save_screenshot("google.png")
     try:
         print("Opening the login page...")
         driver.get("https://sccharlestonweb.myvscloud.com/webtrac/web/splash.html?InterfaceParameter=WebTrac_Golf")
         print("fetched")
+        driver.save_screenshot("login.png")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+        driver.save_screenshot("login_after_10.png")
         print("error here")
         # Find and click the login button
         login_button = WebDriverWait(driver, 10).until(
