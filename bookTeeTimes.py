@@ -13,6 +13,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from html import unescape
 from datetime import timedelta
+from selenium.webdriver.chrome.service import Service
 
 def wait_until_precise_7am():
     """Wait until exactly 7:00:00.000 AM with millisecond precision."""
@@ -103,9 +104,9 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--remote-debugging-port=9222")
-
-    driver = webdriver.Chrome(executable_path="/usr/bin/chromedriver", options=chrome_options)
-
+    chromedriver_path = "/usr/bin/chromedriver"  # Use your verified path
+    service = Service(chromedriver_path)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
 
     try:
         print("Opening the login page...")
