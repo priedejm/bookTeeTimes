@@ -222,9 +222,33 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         print("url we hit", tee_times[0]['Add to Cart URL'])
 
 
-        # Step 2: Parse the HTML response to find the form fields
+        # Step 2: Parse the page to extract form data
         soup = BeautifulSoup(response.text, "html.parser")
-        print("our soup", soup)
+        form = soup.find("form", {"id": "golfmemberselection"})  # Locate the correct form
+
+        if not form:
+            print("❌ Form not found!")
+            exit()
+
+        # Extract the required fields
+        form_data = {
+            "Action": form.find("input", {"name": "Action"})["value"],
+            "_csrf_token": form.find("input", {"name": "_csrf_token"})["value"],
+            "golfmemberselection_buttoncontinue": "yes",  # Mimic the continue button click
+        }
+
+        # Step 3: Submit the form
+        continue_url = form["action"]  # Get the form action URL
+        print("continue url is", continue_url)
+        print("form data is", form_data)
+        response = session.post(continue_url, data=form_data)
+
+        # Step 4: Verify if the continue button worked
+        if "processingprompts_buttononeclicktofinish" in response.text:
+            print("✅ Successfully clicked continue! Now on payment page.")
+        else:
+            print("❌ Continue button submission may have failed.")
+        print("response guy", response)
         return
         # Click "Continue" on payment page
         payment_button = WebDriverWait(driver, 10).until(
