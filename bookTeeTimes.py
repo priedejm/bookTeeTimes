@@ -173,7 +173,6 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         soup = BeautifulSoup(driver.page_source, 'html.parser')
         rows = soup.select("tbody tr")
         print(f"Total tee times found: {len(rows)}")
-        print("Found: ", rows)
 
         min_time = datetime.strptime(f"{day} {min_time.strip().upper()}", "%Y-%m-%d %I:%M%p")
         max_time = datetime.strptime(f"{day} {max_time.strip().upper()}", "%Y-%m-%d %I:%M%p")
@@ -219,7 +218,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         session = requests.Session()
         session.cookies.update(requests_cookies)
         response = session.get(tee_times[0]['Add to Cart URL'])
-        print("our guy", response)
+        print("our guy", response.content)
         print("url we hit", tee_times[0]['Add to Cart URL'])
         return
 
