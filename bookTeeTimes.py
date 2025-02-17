@@ -115,6 +115,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         driver.get("https://sccharlestonweb.myvscloud.com/webtrac/web/splash.html?InterfaceParameter=WebTrac_Golf")
         print("fetched")
         driver.save_screenshot("login.png")
+        time.sleep(10)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
         driver.save_screenshot("login_after_10.png")
         print("error here")
