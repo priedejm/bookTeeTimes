@@ -109,7 +109,6 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
     driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.get("https://www.google.com")
     print(driver.title)  # Should print: "Google"
-    driver.quit()
     try:
         print("Opening the login page...")
         driver.get("https://sccharlestonweb.myvscloud.com/webtrac/web/splash.html?InterfaceParameter=WebTrac_Golf")
