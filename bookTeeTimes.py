@@ -255,7 +255,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         })      
 
         print("Continue button clicked:", response.url)     
-
+        print("continue button response", response.text)
         # Step 6: Second POST request (Required for cart submission)
         cart_url = "https://sccharlestonweb.myvscloud.com/webtrac/web/addtocart.html?action=addtocart&subaction=start2"
         response = session.post(cart_url, headers={
@@ -269,6 +269,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
             print("✅ Successfully proceeded to checkout!")
         else:
             print("❌ Something went wrong. Check response:", response.text)
+        print("ending page response", response.text)
         return
         # Click "Continue" on payment page
         payment_button = WebDriverWait(driver, 10).until(
