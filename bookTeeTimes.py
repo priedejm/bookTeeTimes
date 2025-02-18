@@ -224,7 +224,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
             "Origin": "https://sccharlestonweb.myvscloud.com"
         })
         print("Loaded Add to Cart Page:", response.url)     
-
+        print("and we logged in here", response.text)
         # Step 3: Extract form details
         soup = BeautifulSoup(response.text, "html.parser")
         form = soup.find("form", {"id": "golfmemberselection"})  # Find form        
@@ -236,11 +236,12 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         # Step 4: Prepare form data
         form_data = {
             "Action": form.find("input", {"name": "Action"})["value"],
+            "SubAction": "",
             "_csrf_token": form.find("input", {"name": "_csrf_token"})["value"],
-            "golfmemberselection_player1": "Skip",
-            "golfmemberselection_player2": "Skip",
+            "golfmemberselection_player1": "SALink-46450504",
+            "golfmemberselection_player2": "SALink-46450504",
             "golfmemberselection_player3": "SALink-46450504",  # Make sure this matches DevTools
-            "golfmemberselection_player4": "Skip",
+            "golfmemberselection_player4": "SALink-46450504",
             "golfmemberselection_player5": "Skip",
             "golfmemberselection_buttoncontinue": "yes",
         }       
@@ -264,12 +265,13 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         print("Continue button clicked:", response.url)     
         print("continue button response", response.text)
         # Step 6: Second POST request (Required for cart submission)
-        cart_url = "https://sccharlestonweb.myvscloud.com/webtrac/web/addtocart.html?action=addtocart&subaction=start2"
-        response = session.post(cart_url, headers={
+        cart_url = f"https://sccharlestonweb.myvscloud.com/webtrac/web/addtocart.html?action=addtocart&subaction=start2&_csrf_token={form_data['_csrf_token']}"
+        response = session.get(cart_url, headers={
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
             "Referer": continue_url,
             "Origin": "https://sccharlestonweb.myvscloud.com"
-        })      
+        })
+
 
         # Step 7: Check if successfully added to cart
         if "processingprompts_buttononeclicktofinish" in response.text:
