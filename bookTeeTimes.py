@@ -246,7 +246,14 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         }       
 
         # Step 5: Submit the form (Multipart)
-        continue_url = "https://sccharlestonweb.myvscloud.com" + form["action"]
+        base_url = "https://sccharlestonweb.myvscloud.com"
+        continue_url = form["action"]
+        
+        # Ensure 'continue_url' is properly formatted
+        if not continue_url.startswith("http"):
+            continue_url = base_url + continue_url  # Append base URL if it's a relative path
+        
+        print(f"Final continue_url: {continue_url}")  # Debugging step
         response = session.post(continue_url, files=form_data, headers={
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
             "Referer": tee_times[0]['Add to Cart URL'],
