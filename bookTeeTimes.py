@@ -217,33 +217,58 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
 
         session = requests.Session()
         session.cookies.update(requests_cookies)
-        response = session.get(tee_times[0]['Add to Cart URL'])
-        print("our guy", response.content)
-        print("url we hit", tee_times[0]['Add to Cart URL'])
+        # Step 2: Visit the "Add to Cart" page
+        response = session.get(tee_times[0]['Add to Cart URL'], headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+            "Referer": tee_times[0]['Add to Cart URL'],
+            "Origin": "https://sccharlestonweb.myvscloud.com"
+        })
+        print("Loaded Add to Cart Page:", response.url)     
 
-
-        # Step 2: Parse the page to extract form data
+        # Step 3: Extract form details
         soup = BeautifulSoup(response.text, "html.parser")
-        form = soup.find("form", {"id": "golfmemberselection"})  # Locate the correct form
+        form = soup.find("form", {"id": "golfmemberselection"})  # Find form        
 
         if not form:
             print("❌ Form not found!")
-            exit()
+            exit()      
 
-        # Extract the required fields
+        # Step 4: Prepare form data
         form_data = {
             "Action": form.find("input", {"name": "Action"})["value"],
             "_csrf_token": form.find("input", {"name": "_csrf_token"})["value"],
-            "golfmemberselection_buttoncontinue": "yes",  # Mimic the continue button click
-        }
+            "golfmemberselection_player1": "Skip",
+            "golfmemberselection_player2": "Skip",
+            "golfmemberselection_player3": "SALink-46450504",  # Make sure this matches DevTools
+            "golfmemberselection_player4": "Skip",
+            "golfmemberselection_player5": "Skip",
+            "golfmemberselection_buttoncontinue": "yes",
+        }       
 
-        # Step 3: Submit the form
-        continue_url = form["action"]  # Get the form action URL
-        print("continue url is", continue_url)
-        print("form data is", form_data)
-        response = session.post(continue_url, data=form_data)
+        # Step 5: Submit the form (Multipart)
+        continue_url = "https://sccharlestonweb.myvscloud.com" + form["action"]
+        response = session.post(continue_url, files=form_data, headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+            "Referer": tee_times[0]['Add to Cart URL'],
+            "Origin": "https://sccharlestonweb.myvscloud.com",
+            "Content-Type": "multipart/form-data"
+        })      
 
-        print("response guy", response.text)
+        print("Continue button clicked:", response.url)     
+
+        # Step 6: Second POST request (Required for cart submission)
+        cart_url = "https://sccharlestonweb.myvscloud.com/webtrac/web/addtocart.html?action=addtocart&subaction=start2"
+        response = session.post(cart_url, headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
+            "Referer": continue_url,
+            "Origin": "https://sccharlestonweb.myvscloud.com"
+        })      
+
+        # Step 7: Check if successfully added to cart
+        if "processingprompts_buttononeclicktofinish" in response.text:
+            print("✅ Successfully proceeded to checkout!")
+        else:
+            print("❌ Something went wrong. Check response:", response.text)
         return
         # Click "Continue" on payment page
         payment_button = WebDriverWait(driver, 10).until(
