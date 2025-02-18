@@ -1,7 +1,6 @@
 import sys
 import subprocess
 import pickle
-import requests
 import time
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -158,7 +157,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         })
 
         new_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, urlencode(query_params, doseq=True), parsed_url.fragment))
-        # wait_until_precise_7am()
+        wait_until_precise_7am()
         driver.get(new_url)
         print("✅ Navigated to modified search page!")
 
@@ -212,93 +211,17 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
 
         print("✅ Found matching tee times!")
 
-        selenium_cookies = driver.get_cookies()
-        requests_cookies = {cookie['name']: cookie['value'] for cookie in selenium_cookies}
+        # Add first tee time to cart
+        driver.get(tee_times[0]['Add to Cart URL'])
+        print(f"✅ Added to cart: {tee_times[0]['Time']}")
 
-        session = requests.Session()
-        session.cookies.update(requests_cookies)
+        # Click "Continue" on player selection
+        continue_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "golfmemberselection_buttoncontinue"))
+        )
+        continue_button.click()
+        print("✅ Clicked continue on player selection page!")
 
-        # Step 2: Visit the "Add to Cart" page
-        response = session.get(tee_times[0]['Add to Cart URL'], headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
-            "Referer": tee_times[0]['Add to Cart URL'],
-            "Origin": "https://sccharlestonweb.myvscloud.com"
-        })
-        print("Loaded Add to Cart Page:", response.url)     
-        print("and we logged in here", response.text)
-
-        # Step 3: Extract form details
-        soup = BeautifulSoup(response.text, "html.parser")
-        form = soup.find("form", {"id": "golfmemberselection"})  # Find form        
-
-        if not form:
-            print("❌ Form not found!")
-            exit()      
-
-        # Step 4: Prepare form data
-        form_data = {
-            "Action": form.find("input", {"name": "Action"})["value"],
-            "SubAction": "",  # Keep empty if it's empty in DevTools
-            "_csrf_token": form.find("input", {"name": "_csrf_token"})["value"],
-            "golfmemberselection_player1": "SALink-46450504",
-            "golfmemberselection_player2": "SALink-46450504",
-            "golfmemberselection_player3": "SALink-46450504",
-            "golfmemberselection_player4": "SALink-46450504",
-            "golfmemberselection_player5": "Skip",
-            "golfmemberselection_buttoncontinue": "yes",
-        }       
-
-        # Step 5: Submit the form (Post request)
-        base_url = "https://sccharlestonweb.myvscloud.com"
-        continue_url = form["action"]
-
-        # Ensure 'continue_url' is properly formatted
-        if not continue_url.startswith("http"):
-            continue_url = base_url + continue_url  
-
-        print(f"Final continue_url: {continue_url}")  
-        print(f"and the form data looks like: {form_data}")
-
-        # Send the form submission request
-        response = session.post(continue_url, data=form_data, headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
-            "Referer": tee_times[0]['Add to Cart URL'],
-            "Origin": "https://sccharlestonweb.myvscloud.com"
-        }, allow_redirects=False)  # Prevent auto-following the redirect
-
-        print("Continue button clicked:", response.url)     
-        print("continue button response", response.text)
-
-        # Step 6: Handle the redirect manually
-        redirected_url = continue_url  # Set default in case no redirect happens
-
-        if response.status_code == 302 and "Location" in response.headers:
-            redirected_url = base_url + response.headers["Location"]  # Ensure full URL
-            print(f"Redirecting to: {redirected_url}")
-
-            response = session.get(redirected_url, headers={
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
-                "Referer": continue_url,
-                "Origin": "https://sccharlestonweb.myvscloud.com"
-            })
-
-        # Step 7: Second GET request (Cart submission)
-        cart_url = f"https://sccharlestonweb.myvscloud.com/webtrac/web/addtocart.html?action=addtocart&subaction=start2&_csrf_token={form_data['_csrf_token']}"
-
-        response = session.get(cart_url, headers={
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36",
-            "Referer": redirected_url,  # Updated referer
-            "Origin": "https://sccharlestonweb.myvscloud.com"
-        })
-
-        # Step 8: Check if successfully added to cart
-        if "processingprompts_buttononeclicktofinish" in response.text:
-            print("✅ Successfully proceeded to checkout!")
-        else:
-            print("❌ Something went wrong. Check response:", response.text)
-
-        print("ending page response", response.text)
-        return
         # Click "Continue" on payment page
         payment_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.ID, "processingprompts_buttononeclicktofinish"))
