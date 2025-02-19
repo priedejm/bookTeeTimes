@@ -157,7 +157,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         })
 
         new_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, urlencode(query_params, doseq=True), parsed_url.fragment))
-        wait_until_precise_7am()
+        # wait_until_precise_7am()
         driver.get(new_url)
         print("✅ Navigated to modified search page!")
 
@@ -243,8 +243,14 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
         driver.quit()
 
 
+# Function to print the current time to the console
+def print_current_time():
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Script started at: {current_time}")
+
 def main(): 
     """Main function to handle login, data fetching, and cron job removal."""
+    print_current_time()
     if len(sys.argv) != 7:
         print("Usage: python3 bookTeeTimes.py <course> <day> <minTime> <maxTime> <players> <numTeeTimes>")
         sys.exit(1)
