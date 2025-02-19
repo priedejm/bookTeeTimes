@@ -245,7 +245,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
 
 # Function to print the current time to the console
 def print_current_time():
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(f"Script started at: {current_time}")
 
 def main(): 
