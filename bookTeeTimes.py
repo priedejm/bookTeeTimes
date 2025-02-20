@@ -48,7 +48,7 @@ def get_user_by_username(users, username):
 def wait_until_precise_7am():
     """Wait until exactly 7:00:00.000 AM with millisecond precision."""
     now = datetime.now()
-    target_time = now.replace(hour=22, minute=5, second=0, microsecond=0)
+    target_time = now.replace(hour=7, minute=0, second=0, microsecond=0)
     
     # If it's past 7 AM, wait for the next day's 7 AM
     if now >= target_time:
@@ -330,4 +330,4 @@ if __name__ == "__main__":
 
     # this is what we run baby
 
-    # python3 bookTeeTimes.py 'Charleston Municipal' '2025-02-27' '07:00am' '04:00pm' '4' '1'
+    # python3 bookTeeTimes.py 'Charleston Municipal' '2025-02-27' '07:00am' '04:00pm' '4' '1' 'dpowers'
