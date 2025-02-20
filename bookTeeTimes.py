@@ -14,6 +14,36 @@ from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from html import unescape
 from datetime import timedelta
 from selenium.webdriver.chrome.service import Service
+import requests
+
+def fetch_users_from_firebase():
+    # Firebase Realtime Database URL
+    firebase_url = "https://teetimes-c8dc1-default-rtdb.firebaseio.com/users.json"  # Add `.json` to the URL
+
+    try:
+        # Send GET request to Firebase Realtime Database
+        response = requests.get(firebase_url)
+        response.raise_for_status()  # Raise an exception for any HTTP errors
+        
+        # Check if response has content
+        if response.status_code == 200:
+            users = response.json()  # The Firebase data is returned as a dictionary
+            return users
+        else:
+            print(f"Failed to fetch data from Firebase. HTTP Status Code: {response.status_code}")
+            return None
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data from Firebase: {e}")
+        return None
+    
+def get_user_by_username(users, username):
+    # Check if the users data is available and not empty
+    if users:
+        for user_id, user_data in users.items():
+            if user_data.get("username") == username:
+                return user_data
+    return None
+
 
 def wait_until_precise_7am():
     """Wait until exactly 7:00:00.000 AM with millisecond precision."""
@@ -52,9 +82,9 @@ def click_add_to_cart(session, add_to_cart_url, cookies):
         print(f"Failed to add to cart from {add_to_cart_url}")
 
 
-def remove_cron_job(course, day, min_time, max_time, players):
+def remove_cron_job(course, day, min_time, max_time, players, user):
     # Recreate the cron command from the input parameters
-    cron_command = f"python3 /home/teetimesuser/bookTeeTimes/bookTeeTimes.py '{course}' '{day}' '{min_time}' '{max_time}' '{players}'"
+    cron_command = f"python3 /home/teetimesuser/bookTeeTimes/bookTeeTimes.py '{course}' '{day}' '{min_time}' '{max_time}' '{players}' '{user}'"
 
     # Build the cron timing part (the part that specifies when the cron job should run)
     # This should match the cron job timing used when adding the job.
@@ -95,7 +125,7 @@ def remove_cron_job(course, day, min_time, max_time, players):
     else:
         print("Cron job not found!")
 
-def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes):
+def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, muniUsername, muniPassword):
     """Make requests using the cookies from Selenium."""
     
     # Set up WebDriver options
@@ -251,24 +281,53 @@ def print_current_time():
 def main(): 
     """Main function to handle login, data fetching, and cron job removal."""
     print_current_time()
-    if len(sys.argv) != 7:
-        print("Usage: python3 bookTeeTimes.py <course> <day> <minTime> <maxTime> <players> <numTeeTimes>")
+    
+    if len(sys.argv) != 8:
+        print("Usage: python3 bookTeeTimes.py <course> <day> <minTime> <maxTime> <players> <numTeeTimes> <user>")
         sys.exit(1)
 
-    course, day, min_time, max_time, players, numTeeTimes = sys.argv[1:7]
+    course, day, min_time, max_time, players, numTeeTimes, user = sys.argv[1:8]
 
+    print(f"User: {user}")
     print(f"Course: {course}")
     print(f"Day: {day}")
     print(f"Min Time: {min_time}")
     print(f"Max Time: {max_time}")
     print(f"Players: {players}")
 
-    if course == "Charleston Municipal":
-        print("Start scraping...")
-        # Use the Selenium session for login and scraping
-        use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes)
+    # Fetch users from Firebase
+    users = fetch_users_from_firebase()
+    if users:
+        matched_user = get_user_by_username(users, user)
+        if matched_user:
+            print(f"User {user} found: {matched_user}")
+            # Now you can use the matched_user in your Selenium logic
+            muniUsername = matched_user['muniUsername']
+            muniPassword = matched_user['muniPassword']
+            if course == "Charleston Municipal":
+                print("Start scraping...")
+                # Use the Selenium session for login and scraping
+                use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, muniUsername, muniPassword)
+        else:
+            print(f"User {user} not found in Firebase.")
+    else:
+        print("Failed to fetch users from Firebase.")
+    
+    remove_cron_job(course, day, min_time, max_time, players, user)
 
-    remove_cron_job(course, day, min_time, max_time, players)
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
+    # this is what we run baby
+
+    # python3 bookTeeTimes.py 'Charleston Municipal' '2025-02-27' '07:00am' '04:00pm' '4' '1'
