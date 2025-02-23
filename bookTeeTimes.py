@@ -134,6 +134,8 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
         log_file.write(f"Python Path: {sys.executable}\n")
         log_file.write(f"Current Working Directory: {os.getcwd()}\n")
         log_file.write(f"Environment Variables:\n{os.environ}\n")
+        log_file.write(f"Chromium Path: {os.popen('which chromium-browser').read()}\n")
+        log_file.write(f"ChromeDriver Path: {os.popen('which chromedriver').read()}\n")
     # Set up WebDriver options
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run in headless mode
