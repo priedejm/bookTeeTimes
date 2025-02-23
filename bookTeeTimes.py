@@ -15,6 +15,8 @@ from html import unescape
 from datetime import timedelta
 from selenium.webdriver.chrome.service import Service
 import requests
+import sys
+import os
 
 def fetch_users_from_firebase():
     # Firebase Realtime Database URL
@@ -127,7 +129,11 @@ def remove_cron_job(course, day, min_time, max_time, players, user):
 
 def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, muniUsername, muniPassword):
     """Make requests using the cookies from Selenium."""
-    
+    # Log environment variables to a file to see if PATH and other variables are different in cron
+    with open("/home/teetimesuser/cron_env_log.txt", "a") as log_file:
+        log_file.write(f"Python Path: {sys.executable}\n")
+        log_file.write(f"Current Working Directory: {os.getcwd()}\n")
+        log_file.write(f"Environment Variables:\n{os.environ}\n")
     # Set up WebDriver options
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run in headless mode
@@ -142,9 +148,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
     try:
         print("Opening the login page...")
         driver.get("https://sccharlestonweb.myvscloud.com/webtrac/web/splash.html?InterfaceParameter=WebTrac_Golf")
-        driver.save_screenshot("home.png")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
-        driver.save_screenshot("home_after_10.png")
         # Find and click the login button
         login_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'login.html')]"))
@@ -330,4 +334,4 @@ if __name__ == "__main__":
 
     # this is what we run baby
 
-    # python3 bookTeeTimes.py 'Charleston Municipal' '2025-02-27' '07:00am' '04:00pm' '4' '1' 'dpowers'
+    # python3 bookTeeTimes.py 'Charleston Municipal' '2025-02-28' '07:00am' '04:00pm' '4' '1' 'dpowers'
