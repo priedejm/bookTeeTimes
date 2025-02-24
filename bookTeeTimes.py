@@ -142,7 +142,6 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--window-size=1920,1080")  # Full HD resolution
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--remote-debugging-port=9222")
     chrome_options.binary_location = "/usr/bin/chromium-browser"  # Point to Chromium
     service = Service("/usr/bin/chromedriver")  
     driver = webdriver.Chrome(service=service, options=chrome_options)
