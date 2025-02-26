@@ -127,6 +127,13 @@ def remove_cron_job(course, day, min_time, max_time, players, user):
     else:
         print("Cron job not found!")
 
+def save_screenshot(driver, error_message):
+    """Saves a screenshot with a unique name based on the current timestamp."""
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    screenshot_filename = f"/home/teetimesuser/screenshots/error_{timestamp}.png"
+    driver.save_screenshot(screenshot_filename)
+    print(f"Screenshot saved to {screenshot_filename} due to error: {error_message}")
+
 def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, muniUsername, muniPassword):
     """Make requests using the cookies from Selenium."""
     # Log environment variables to a file to see if PATH and other variables are different in cron
@@ -136,6 +143,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
         log_file.write(f"Environment Variables:\n{os.environ}\n")
         log_file.write(f"Chromium Path: {os.popen('which chromium-browser').read()}\n")
         log_file.write(f"ChromeDriver Path: {os.popen('which chromedriver').read()}\n")
+
     # Set up WebDriver options
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run in headless mode
@@ -150,6 +158,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
         print("Opening the login page...")
         driver.get("https://sccharlestonweb.myvscloud.com/webtrac/web/splash.html?InterfaceParameter=WebTrac_Golf")
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+        
         # Find and click the login button
         login_button = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//a[contains(@href, 'login.html')]"))
@@ -179,7 +188,6 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
         query_params = parse_qs(parsed_url.query)
         formatted_day = datetime.strptime(day, "%Y-%m-%d").strftime("%m/%d/%Y")
         formatted_time = datetime.strptime(min_time, "%I:%M%p").strftime("%I:%M%p").lstrip("0").upper()
-
 
         query_params.update({
             "Action": ["Start"],
@@ -273,6 +281,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
 
     except Exception as e:
         print("❌ Unexpected error:", e)
+        save_screenshot(driver, str(e))  # Capture screenshot upon error
 
     finally:
         driver.quit()
@@ -323,16 +332,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-    # this is what we run baby
-
-    # python3 bookTeeTimes.py 'Charleston Municipal' '2025-02-28' '07:00am' '04:00pm' '4' '1' 'dpowers'
