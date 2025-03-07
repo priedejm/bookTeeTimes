@@ -171,8 +171,8 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
 
         # Enter username and password
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'weblogin_username')))
-        driver.find_element(By.ID, 'weblogin_username').send_keys('priedejm')
-        driver.find_element(By.ID, 'weblogin_password').send_keys('123Qweasdhuyter4!')
+        driver.find_element(By.ID, 'weblogin_username').send_keys(muniUsername)
+        driver.find_element(By.ID, 'weblogin_password').send_keys(muniPassword)
 
         # Click login button
         driver.find_element(By.ID, 'weblogin_buttonlogin').click()
