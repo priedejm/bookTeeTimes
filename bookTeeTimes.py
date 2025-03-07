@@ -129,10 +129,11 @@ def remove_cron_job(course, day, min_time, max_time, players, user):
 
 def save_screenshot(driver, error_message):
     """Saves a screenshot with a unique name based on the current timestamp."""
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # More readable timestamp format
     screenshot_filename = f"/home/teetimesuser/screenshots/error_{timestamp}.png"
     driver.save_screenshot(screenshot_filename)
     print(f"Screenshot saved to {screenshot_filename} due to error: {error_message}")
+
 
 def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, muniUsername, muniPassword):
     """Make requests using the cookies from Selenium."""
@@ -171,6 +172,8 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
 
         # Enter username and password
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, 'weblogin_username')))
+        print("muni Username", muniUsername)
+        print("muni Password", muniPassword)
         driver.find_element(By.ID, 'weblogin_username').send_keys(muniUsername)
         driver.find_element(By.ID, 'weblogin_password').send_keys(muniPassword)
 
@@ -203,7 +206,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
         })
 
         new_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, urlencode(query_params, doseq=True), parsed_url.fragment))
-        wait_until_precise_7am()
+        #wait_until_precise_7am()
         driver.get(new_url)
         print("✅ Navigated to modified search page!")
 
