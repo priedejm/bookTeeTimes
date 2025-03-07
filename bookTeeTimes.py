@@ -217,6 +217,10 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
         search_button.click()
         print("✅ Search button clicked!")
 
+        WebDriverWait(driver, 5).until( # wait for rows to load
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "tbody tr"))
+        )
+
         # Parse available tee times
         soup = BeautifulSoup(driver.page_source, 'html.parser')
         print("da soup", soup)
