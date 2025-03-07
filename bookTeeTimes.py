@@ -219,6 +219,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
 
         # Parse available tee times
         soup = BeautifulSoup(driver.page_source, 'html.parser')
+        print("da soup", soup)
         rows = soup.select("tbody tr")
         print(f"Total tee times found: {len(rows)}")
 
