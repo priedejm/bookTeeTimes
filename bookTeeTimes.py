@@ -10,6 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from html import unescape
 from datetime import timedelta
@@ -128,6 +129,7 @@ def remove_cron_job(course, day, min_time, max_time, players, user):
         print("Cron job not found!")
 
 def save_screenshot(driver, error_message):
+    return
     """Saves a screenshot with a unique name based on the current timestamp."""
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # More readable timestamp format
     screenshot_filename = f"/home/teetimesuser/screenshots/error_{timestamp}.png"
@@ -138,12 +140,12 @@ def save_screenshot(driver, error_message):
 def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, muniUsername, muniPassword):
     """Make requests using the cookies from Selenium."""
     # Log environment variables to a file to see if PATH and other variables are different in cron
-    with open("/home/teetimesuser/cron_env_log.txt", "a") as log_file:
-        log_file.write(f"Python Path: {sys.executable}\n")
-        log_file.write(f"Current Working Directory: {os.getcwd()}\n")
-        log_file.write(f"Environment Variables:\n{os.environ}\n")
-        log_file.write(f"Chromium Path: {os.popen('which chromium-browser').read()}\n")
-        log_file.write(f"ChromeDriver Path: {os.popen('which chromedriver').read()}\n")
+    # with open("/home/teetimesuser/cron_env_log.txt", "a") as log_file:
+    #     log_file.write(f"Python Path: {sys.executable}\n")
+    #     log_file.write(f"Current Working Directory: {os.getcwd()}\n")
+    #     log_file.write(f"Environment Variables:\n{os.environ}\n")
+    #     log_file.write(f"Chromium Path: {os.popen('which chromium-browser').read()}\n")
+    #     log_file.write(f"ChromeDriver Path: {os.popen('which chromedriver').read()}\n")
 
     # Set up WebDriver options
     chrome_options = Options()
@@ -154,9 +156,12 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
     chrome_options.add_argument("--blink-settings=imagesEnabled=false")  # Disable images
     chrome_options.add_argument("--disable-extensions")  # Disable extensions
 
-    chrome_options.binary_location = "/usr/bin/chromium-browser"  # Point to Chromium
-    service = Service("/usr/bin/chromedriver")  
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    # chrome_options.binary_location = "/usr/bin/chromium-browser"  # Point to Chromium
+    # service = Service("/usr/bin/chromedriver")  
+    # driver = webdriver.Chrome(service=service, options=chrome_options)
+    # Automatically download and set up Chrome and ChromeDriver using webdriver_manager
+    driver_path = ChromeDriverManager().install()  # This will download ChromeDriver and set the path
+    driver = webdriver.Chrome(service=Service(driver_path), options=chrome_options)
 
     try:
         print("Opening the login page...")
@@ -343,3 +348,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+   # python3 bookTeeTimes.py 'Charleston Municipal' '2025-03-26' '9:33am' '10:30am' '4' '1' 'priedejm'
