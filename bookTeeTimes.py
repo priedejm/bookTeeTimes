@@ -129,10 +129,10 @@ def remove_cron_job(course, day, min_time, max_time, players, user):
         print("Cron job not found!")
 
 def save_screenshot(driver, error_message):
-    return
     """Saves a screenshot with a unique name based on the current timestamp."""
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # More readable timestamp format
-    screenshot_filename = f"/home/teetimesuser/screenshots/error_{timestamp}.png"
+    screenshot_filename = f"/Users/justinpriede/Public/personal stuff as of jul 15/bookTeeTimes/screenshots/error_{timestamp}.png"
+    # screenshot_filename = f"/home/teetimesuser/screenshots/error_{timestamp}.png"
     driver.save_screenshot(screenshot_filename)
     print(f"Screenshot saved to {screenshot_filename} due to error: {error_message}")
 
@@ -149,7 +149,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
 
     # Set up WebDriver options
     chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run in headless mode
+    # chrome_options.add_argument("--headless")  # Run in headless mode
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--window-size=1920,1080")  # Full HD resolution
     chrome_options.add_argument("--disable-dev-shm-usage")
@@ -211,7 +211,7 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
         })
 
         new_url = urlunparse((parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, urlencode(query_params, doseq=True), parsed_url.fragment))
-        wait_until_precise_7am()
+        # wait_until_precise_7am()
         driver.get(new_url)
         print("✅ Navigated to modified search page!")
 
@@ -287,6 +287,19 @@ def use_selenium_with_cookies(min_time, max_time, players, day, numTeeTimes, mun
         )
         payment_button.click()
         print("✅ Clicked continue on payment page!")
+        # Click "Continue" on Shopping Cart page
+        proceedToCheckoutButton = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "webcart_buttoncheckout"))
+        )
+        proceedToCheckoutButton.click()
+        print("✅ Clicked on Proceed to Checkout!")
+
+        # Click "Continue" on webcheckout_buttoncontinue page
+        webcheckout_buttoncontinue = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "webcheckout_buttoncontinue"))
+        )
+        webcheckout_buttoncontinue.click()
+        print("✅ Clicked on webcheckout_buttoncontinue!")
 
         # Logout
         logout_button = WebDriverWait(driver, 10).until(
@@ -351,4 +364,6 @@ if __name__ == "__main__":
 
 
 
-   # python3 bookTeeTimes.py 'Charleston Municipal' '2025-03-26' '9:33am' '10:30am' '4' '1' 'priedejm'
+# python3 bookTeeTimes.py 'Charleston Municipal' '2025-04-06' '9:40am' '10:30am' '4' '1' 'pat'
+# python3 bookTeeTimes.py 'Charleston Municipal' '2025-04-06' '9:50am' '10:30am' '4' '1' 'priedejm'
+# python3 bookTeeTimes.py 'Charleston Municipal' '2025-04-06' '10:00am' '10:30am' '4' '1' 'patWife'
